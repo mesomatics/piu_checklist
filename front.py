@@ -17,7 +17,7 @@ app.layout = html.Div([
     html.Hr(),
     dcc.Dropdown(["None", "Hypnosis"], "None", id="template"),
     dcc.RadioItems(["Single", "Double"], "Double", id="mode", inline=True),
-    dcc.Dropdown(id="level"),
+    dcc.Dropdown(value=23, id="level"),
     html.Button("Load Template", id="run", n_clicks=0),
     html.Hr(),
     html.Div("기록을 불러오려면 PIU 홈페이지 아이디로 로그인하세요.", id="login_text"),

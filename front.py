@@ -1,3 +1,5 @@
+import io
+
 import pandas as pd
 from flask import Flask
 from dash import Dash, html, dcc, Output, Input, State, no_update
@@ -25,7 +27,7 @@ app.layout = html.Div([
     html.Button("Login", id="login", n_clicks=0),
     html.Hr(),
     dcc.RadioItems(["red_slash", "grade", "plate", "score"], "red_slash", id="checker"),
-    html.Button("Check Records", id="check", n_clicks=0),
+    html.Button("Check Records", id="check", n_clicks=0, style={"display": "none"}),
     html.Hr(),
     dcc.Loading(
             id="loading",
@@ -33,7 +35,7 @@ app.layout = html.Div([
             children=html.Img(id="result", width="100%")
         ),
     dcc.Store(id="piu", data=None),
-    dcc.Store(id="selected"),
+    dcc.Store(id="selected", data=None),
     dcc.Store(id="records", data=None)
     ])
 
@@ -44,6 +46,7 @@ app.layout = html.Div([
     Output("username", "style"),
     Output("password", "style"),
     Output("login", "style"),
+    Output("check", "style"),
     Output("login_status", "data"),
     Output("username", "value"),
     Output("password", "value"),
@@ -62,12 +65,12 @@ def piu_login(login, username, password, piu):
         piu = jsonpickle.encode(piu)
         if result:
             none = {"display": "none"}
-            return result, 0, piu, none, none, none, True, "", ""
+            return result, 0, piu, none, none, none, None, True, "", ""
         else:
             error_text = "(오류) 아이디 혹은 비밀번호를 다시 확인해주세요."
-            return error_text, 0, piu, no_update, no_update, no_update, no_update, no_update, no_update
+            return [error_text, 0, piu] + [no_update] * 7
     else:
-        return [no_update] * 9
+        return [no_update] * 10
 
 @app.callback(
     Output("level", "options"),
@@ -115,20 +118,20 @@ def update_template(click_run, click_check, template, mode, level, checker, piu,
         checklist = jsonpickle.encode(checklist)
         return img, 0, no_update, checklist, None
     elif click_check > 0:
-        if not login_status:
+        if (not login_status) or (checklist is None):
             return no_update, no_update, 0, no_update, no_update
         checklist = jsonpickle.decode(checklist)
         if records is None:
             piu = jsonpickle.decode(piu)
             records = piu.parse_best_score(level=checklist.level)
         else:
-            records = pd.read_json(records)
+            records = pd.read_json(io.StringIO(records))
         checklist.set_records(records)
         img = checklist.check(checker=checker)
         records = records.to_json()
         return img, no_update, 0, no_update, records
     else:
-        return no_update, no_update, no_update, no_update, no_update
+        return [no_update] * 5
 
 
 if __name__ == '__main__':

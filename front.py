@@ -1,13 +1,14 @@
 import pandas as pd
+from flask import Flask
 from dash import Dash, html, dcc, Output, Input, State, no_update
-from gevent.pywsgi import WSGIServer
 import jsonpickle
 
 from checklist_maker import ChecklistMaker
 from crawling_records import PIURecord
 
 
-app = Dash(__name__)
+server = Flask(__name__)
+app = Dash(__name__, server=server)
 
 app.layout = html.Div([
     html.H1(children="Pump it up Phoenix", style={'textAlign':'center'}, id="title"),
@@ -131,5 +132,4 @@ def update_template(click_run, click_check, template, mode, level, checker, piu,
 
 
 if __name__ == '__main__':
-    http_server = WSGIServer(("", 8080), app.server)
-    http_server.serve_forever()
+    server.run()

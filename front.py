@@ -63,7 +63,8 @@ def piu_login(login, username, password, piu):
             piu = jsonpickle.decode(piu)
         result = piu.login(username, password)
         piu = jsonpickle.encode(piu)
-        if result:
+        if result is not None:
+            print(result)
             none = {"display": "none"}
             return result, 0, piu, none, none, none, None, True, "", ""
         else:

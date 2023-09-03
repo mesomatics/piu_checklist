@@ -18,7 +18,7 @@ app.layout = html.Div([
     dcc.Dropdown(["None", "Hypnosis"], "None", id="template"),
     dcc.RadioItems(["Single", "Double"], "Double", id="mode", inline=True),
     dcc.Dropdown(value=23, id="level"),
-    html.Button("Load Template", id="run", n_clicks=0),
+    html.Button("Load Template", id="load_template", n_clicks=0),
     html.Hr(),
     html.Div("기록을 불러오려면 PIU 홈페이지 아이디로 로그인하세요.", id="login_text"),
     dcc.Input(placeholder="PIU ID (e-mail)", id="username", type="email"),
@@ -43,13 +43,7 @@ app.layout = html.Div([
     Output("login_text", "children"),
     Output("login", "n_clicks"),
     Output("piu", "data"),
-    Output("username", "style"),
-    Output("password", "style"),
-    Output("login", "style"),
-    Output("check", "style"),
     Output("login_status", "data"),
-    Output("username", "value"),
-    Output("password", "value"),
     Input("login", "n_clicks"),
     State("username", "value"),
     State("password", "value"),
@@ -64,14 +58,30 @@ def piu_login(login, username, password, piu):
         result = piu.login(username, password)
         piu = jsonpickle.encode(piu)
         if result:
-            print(result)
             none = {"display": "none"}
-            return result, 0, piu, none, none, none, None, True, "", ""
+            return result, 0, piu, True
         else:
             error_text = "(오류) 아이디 혹은 비밀번호를 다시 확인해주세요."
-            return [error_text, 0, piu] + [no_update] * 7
+            return error_text, 0, piu, no_update
     else:
-        return [no_update] * 10
+        return [no_update] * 4
+
+@app.callback(
+    Output("username", "style"),
+    Output("password", "style"),
+    Output("login", "style"),
+    Output("check", "style"),
+    Output("username", "value"),
+    Output("password", "value"),
+    Input("login_status", "data")
+)
+def hide_login_info(login_status):
+    hide = {"display": "none"}
+    show = None
+    if login_status:
+        return hide, hide, hide, show, "", ""
+    else:
+        return show, show, show, hide, no_update, no_update
 
 @app.callback(
     Output("level", "options"),
@@ -93,11 +103,11 @@ def update_levels(template, mode):
 
 @app.callback(
     Output("result", "src"),
-    Output("run", "n_clicks"),
+    Output("load_template", "n_clicks"),
     Output("check", "n_clicks"),
     Output("selected", "data"),
     Output("records", "data"),
-    Input("run", "n_clicks"),
+    Input("load_template", "n_clicks"),
     Input("check", "n_clicks"),
     State("template", "value"),
     State("mode", "value"),
@@ -105,10 +115,9 @@ def update_levels(template, mode):
     State("checker", "value"),
     State("piu", "data"),
     State("selected", "data"),
-    State("records", "data"),
-    State("login_status", "data"),
-    )
-def update_template(click_run, click_check, template, mode, level, checker, piu, checklist, records, login_status):
+    State("records", "data")
+)
+def update_template(click_run, click_check, template, mode, level, checker, piu, checklist, records):
     if click_run > 0:
         if template == "Hypnosis":
             template = f"hypnosis_{mode[0].lower()}{str(level)}"
@@ -119,7 +128,7 @@ def update_template(click_run, click_check, template, mode, level, checker, piu,
         checklist = jsonpickle.encode(checklist)
         return img, 0, no_update, checklist, None
     elif click_check > 0:
-        if (not login_status) or (checklist is None):
+        if checklist is None:
             return no_update, no_update, 0, no_update, no_update
         checklist = jsonpickle.decode(checklist)
         if records is None:

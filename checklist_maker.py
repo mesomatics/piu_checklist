@@ -12,8 +12,9 @@ class ChecklistMaker:
         songs_by_type = {x: [] for x in range(1, 5)}
 
         for title, levels in SONGS.items():
-            if level in levels[mode]:
-                songs_by_type[levels["Type"]].append(title)
+            if mode in levels:
+                if level in levels[mode]:
+                    songs_by_type[levels["Type"]].append(title)
 
         n_songs = sum([len(x) for x in songs_by_type.values()])
         songs_per_row = max(int(np.sqrt(0.7 * n_songs)), 6)

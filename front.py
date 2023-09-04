@@ -50,6 +50,7 @@ app.layout = html.Div([
     State("piu", "data")
     )
 def piu_login(login, username, password, piu):
+    return "기록 불러오기는 주말 재오픈 예정", 0, None, no_update
     if login > 0:
         if piu is None:
             piu = PIURecord()

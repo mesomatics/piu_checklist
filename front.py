@@ -7,6 +7,7 @@ import jsonpickle
 
 from checklist_maker import ChecklistMaker
 from crawling_records import PIURecord
+from songs_info import RatingCalculator
 
 
 server = Flask(__name__)
@@ -29,6 +30,8 @@ app.layout = html.Div([
     dcc.RadioItems(["red_slash", "grade", "plate", "score"], "red_slash", id="checker"),
     html.Button("Check Records", id="check", n_clicks=0, style={"display": "none"}),
     html.Hr(),
+    html.H3(id="text_clear"),
+    html.H3(id="text_rating"),
     dcc.Loading(
             id="loading",
             type="default",
@@ -107,6 +110,8 @@ def update_levels(template, mode):
     Output("check", "n_clicks"),
     Output("selected", "data"),
     Output("records", "data"),
+    Output("text_clear", "children"),
+    Output("text_rating", "children"),
     Input("load_template", "n_clicks"),
     Input("check", "n_clicks"),
     State("template", "value"),
@@ -126,10 +131,10 @@ def update_template(click_run, click_check, template, mode, level, checker, piu,
         checklist = ChecklistMaker().make(mode=mode[0], level=level, template=template)
         img = checklist.image
         checklist = jsonpickle.encode(checklist)
-        return img, 0, no_update, checklist, None
+        return img, 0, no_update, checklist, None, no_update, no_update
     elif click_check > 0:
         if checklist is None:
-            return no_update, no_update, 0, no_update, no_update
+            return no_update, no_update, 0, no_update, no_update, no_update, no_update
         checklist = jsonpickle.decode(checklist)
         if records is None:
             piu = jsonpickle.decode(piu)
@@ -138,10 +143,13 @@ def update_template(click_run, click_check, template, mode, level, checker, piu,
             records = pd.read_json(io.StringIO(records))
         checklist.set_records(records)
         img = checklist.check(checker=checker)
+        
+        rating_calculator = RatingCalculator()
+        text1, text2 = rating_calculator.result(records, level, mode[0])
         records = records.to_json()
-        return img, no_update, 0, no_update, records
+        return img, no_update, 0, no_update, records, text1, text2
     else:
-        return [no_update] * 5
+        return [no_update] * 7
 
 
 if __name__ == '__main__':

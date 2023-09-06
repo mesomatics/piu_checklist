@@ -131,7 +131,7 @@ def update_template(click_run, click_check, template, mode, level, checker, piu,
         checklist = ChecklistMaker().make(mode=mode[0], level=level, template=template)
         img = checklist.image
         checklist = jsonpickle.encode(checklist)
-        return img, 0, no_update, checklist, None, no_update, no_update
+        return img, 0, no_update, checklist, None, None, None
     elif click_check > 0:
         if checklist is None:
             return no_update, no_update, 0, no_update, no_update, no_update, no_update

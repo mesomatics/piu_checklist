@@ -32,6 +32,7 @@ class RatingCalculator:
             count.name = mode
             counts.append(count)
         songs_info = pd.concat(counts, axis=1).fillna(0).astype(int)
+        songs_info.sort_index(inplace=True)
         songs_info = songs_info.loc[10:]
 
         base = self.get_base(songs_info.index)
@@ -50,8 +51,6 @@ class RatingCalculator:
         rating, n_clear = self.calc(df, level, mode)
         def get_text(a, b, name):
             return f"{name} : {a} / {b} ({a / b:.1%})"
-        print(self.songs_info.index)
-        print(self.songs_info.shape)
         t1 = get_text(n_clear, self.songs_info.loc[level, mode], "Clear")
         t2 = get_text(rating, self.songs_info.loc[level, f"MAX_{mode}"], "Rating")
         return t1, t2

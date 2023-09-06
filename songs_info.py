@@ -50,6 +50,8 @@ class RatingCalculator:
         rating, n_clear = self.calc(df, level, mode)
         def get_text(a, b, name):
             return f"{name} : {a} / {b} ({a / b:.1%})"
+        print(self.songs_info.index)
+        print(self.songs_info.shape)
         t1 = get_text(n_clear, self.songs_info.loc[level, mode], "Clear")
         t2 = get_text(rating, self.songs_info.loc[level, f"MAX_{mode}"], "Rating")
         return t1, t2

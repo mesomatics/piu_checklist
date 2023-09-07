@@ -62,6 +62,7 @@ def piu_login(login, username, password, piu):
         piu = jsonpickle.encode(piu)
         if result:
             none = {"display": "none"}
+            print(result)
             return result, 0, piu, True
         else:
             error_text = "(오류) 아이디 혹은 비밀번호를 다시 확인해주세요."

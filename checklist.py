@@ -40,17 +40,41 @@ class Checklist:
     def add_songs(self, tier, songs):
         self.tier_blocks[tier]["block"].add_songs(songs)
 
+    def _get_header_image(self):
+        image_text = Image.new("RGB", (self.width, 100), "white")
+        draw = ImageDraw.Draw(image_text)
+        
+        font = get_font(size=40)
+
+        text_x =(self.width - font.getsize("펌프 잇 업 PHOENIX")[0]) // 2
+        text_y = self.height
+        draw.text((text_x, text_y), "펌프 잇 업", fill="black", font=font)
+        text_x += font.getsize("펌프 잇 업 ")[0]
+        draw.text((text_x, text_y), "PHOENIX", fill="orange", font=font)
+        
+        text_x =(self.width - font.getsize("싱글 00 서열표")[0]) // 2
+        text_y += 50
+        color = "red" if self.mode == "S" else "green"
+        mode = "싱글" if self.mode == "S" else "더블"
+        draw.text((text_x, text_y), f"{mode} {self.level}", fill=color, font=font)
+        text_x += font.getsize(f"{mode} {self.level} ")[0]
+        draw.text((text_x, text_y), "서열표", fill="black", font=font)
+        return image_text
+
     def _compute_size(self):
         self.height = self.margin
+        self.height = 100 + self.margin
         for tier, block in self.tier_blocks.items():
             block["y_from"] = self.height
             self.height += block["block"].height + self.margin
 
     def get_checklist_image(self):
+        header = self._get_header_image()
         for block in self.tier_blocks.values():
             block["block"].get_tier_image()
         self._compute_size()
         image = Image.new("RGB", (self.width, self.height), "white")
+        image.paste(header, (0, 0))
         for block in self.tier_blocks.values():
             image.paste(block["block"].image, (0, block["y_from"]))
         self.image = image

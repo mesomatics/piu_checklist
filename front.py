@@ -100,9 +100,9 @@ def update_levels(template, mode):
             options = list(range(10, 29))
     else:
         if mode == "Single":
-            options = [23]
+            options = [22, 23]
         else:
-            options = [21, 22, 23, 24]
+            options = [21, 22, 23, 24, 25]
     return options
 
 @app.callback(

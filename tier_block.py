@@ -55,7 +55,8 @@ class TierBlock:
                 path = SONGS[song]["image"]
                 jacket_image = Image.open(os.path.join(PATH_IMAGES, path))
             except:
-                jacket_image = jb.make_image(song)
+                song_type = SONGS[song]["Type"]
+                jacket_image = jb.make_image(song, song_type=song_type)
             image.paste(jacket_image.resize(self.jacket_size, resample=Image.BOX), loc)
         return image
 

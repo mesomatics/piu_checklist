@@ -1,4 +1,5 @@
 import io
+import logging
 
 import pandas as pd
 from flask import Flask
@@ -9,6 +10,13 @@ from checklist_maker import ChecklistMaker
 from crawling_records import PIURecord
 from songs_info import RatingCalculator
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s - %(message)s')
+file_handler = logging.FileHandler('run.log')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 server = Flask(__name__)
 app = Dash(__name__, server=server)
@@ -62,7 +70,7 @@ def piu_login(login, username, password, piu):
         piu = jsonpickle.encode(piu)
         if result:
             none = {"display": "none"}
-            print(result)
+            logger.info(result)
             return result, 0, piu, True
         else:
             error_text = "(오류) 아이디 혹은 비밀번호를 다시 확인해주세요."

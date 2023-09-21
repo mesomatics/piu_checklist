@@ -114,8 +114,8 @@ class Checklist:
                 loc = tuple(check_margin + loc + (0, block["y_from"]))
                 if checker == "score":
                     draw = ImageDraw.Draw(image)
-                    score = record['score'] / 10000
-                    color = "red" if score < 90 else "pink" if score < 95 else "yellow"
+                    score = record['score'] // 1000 / 10
+                    color = "red" if score < 90 else "pink" if score < 95 else "yellow" if score < 98 else "white"
                     score = f"{score:.1f}"
                     draw.text(loc, score, fill=color, font=self.font, stroke_width=3, stroke_fill="green")
                 else:
